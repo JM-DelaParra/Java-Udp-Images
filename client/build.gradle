@@ -1,0 +1,42 @@
+// Plugins
+apply plugin: 'java'
+
+// Global configuration
+archivesBaseName = 'myApp'
+version = '1.0'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+// Jar properties
+jar {
+    sourceSets.main.resources {
+		exclude "**/*.java"
+	}
+    from {
+    	configurations.compile.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+    manifest {
+        attributes 	(
+			'Author': 'Jefferson M. De la Parra',
+			'Version': version,
+			'Main-Class': 'app.MainClass'
+		)
+    }
+}
+
+// Get dependencies from Maven central repository
+repositories {
+	mavenCentral()
+}
+
+// Project dependencies
+dependencies {
+	compile fileTree(dir: 'libs', include: ['**/*.jar'])
+}
+
+// Compile and execute application
+task java (dependsOn: jar) << {
+	javaexec { main="-jar"; args jar.archivePath }
+}
